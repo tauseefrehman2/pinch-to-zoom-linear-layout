@@ -20,6 +20,11 @@ Sample Images are attached below
 ## Authors
 
 - [tauseefrehman2 - linkedin](https://www.linkedin.com/in/tauseefrehman2/)
-
 - [tauseefr2 - Fiverr](https://www.fiverr.com/users/tauseefr2/seller_dashboard)
+
+
+## 🛠 Skills
+- Java, Android, Xml, Api's, Firebase
+- Flutter, Firebase, API's, Google maps
+
 
