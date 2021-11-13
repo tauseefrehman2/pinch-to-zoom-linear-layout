@@ -7,6 +7,19 @@ Note that we are going to implement this project using the Java language.
 Sample Images are attached below
 
 
-Normal View
+## Normal View
 
+<img src="Screenshot_1.png" height="500px"> 
+
+
+
+## Zoomed View with Scroll View
+
+<img src="Screenshot_2.png" height="500px"> 
+
+## Authors
+
+- [tauseefrehman2 - linkedin](https://www.linkedin.com/in/tauseefrehman2/)
+
+- [tauseefr2 - Fiverr](https://www.fiverr.com/users/tauseefr2/seller_dashboard)
 
