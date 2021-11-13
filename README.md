@@ -17,6 +17,167 @@ Sample Images are attached below
 
 <img src="Screenshot_2.png" height="500px"> 
 
+## Deployment
+
+#### Step1
+Create Custom class ZoomLinearLayout or you can give any custom name
+
+```bash
+  public class ZoomLinearLayout extends LinearLayout implements ScaleGestureDetector.OnScaleGestureListener {
+
+    private enum Mode {
+        NONE,
+        DRAG,
+        ZOOM
+    }
+
+    private static final float MIN_ZOOM = 1.0f;
+    private static final float MAX_ZOOM = 4.0f;
+
+    private Mode mode = Mode.NONE;
+    private float scale = 1.0f;
+    private float lastScaleFactor = 0f;
+
+    private float startX = 0f;
+    private float startY = 0f;
+
+    private float dx = 0f;
+    private float dy = 0f;
+    private float prevDx = 0f;
+    private float prevDy = 0f;
+
+    public ZoomLinearLayout(Context context) {
+        super(context);
+        init(context);
+    }
+
+    public ZoomLinearLayout(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        init(context);
+    }
+
+    public ZoomLinearLayout(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
+        init(context);
+    }
+
+    public void init(Context context) {
+        final ScaleGestureDetector scaleDetector = new ScaleGestureDetector(context, this);
+        this.setOnTouchListener(new OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
+                    case MotionEvent.ACTION_DOWN:
+                        if (scale > MIN_ZOOM) {
+                            mode = Mode.DRAG;
+                            startX = motionEvent.getX() - prevDx;
+                            startY = motionEvent.getY() - prevDy;
+                        }
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        if (mode == Mode.DRAG) {
+                            dx = motionEvent.getX() - startX;
+                            dy = motionEvent.getY() - startY;
+                        }
+                        break;
+                    case MotionEvent.ACTION_POINTER_DOWN:
+                        mode = Mode.ZOOM;
+                        break;
+                    case MotionEvent.ACTION_POINTER_UP:
+                        mode = Mode.DRAG;
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        mode = Mode.NONE;
+                        prevDx = dx;
+                        prevDy = dy;
+                        break;
+                }
+                scaleDetector.onTouchEvent(motionEvent);
+
+                if ((mode == Mode.DRAG && scale >= MIN_ZOOM) || mode == Mode.ZOOM) {
+                    getParent().requestDisallowInterceptTouchEvent(true);
+                    float maxDx = (child().getWidth() - (child().getWidth() / scale)) / 2 * scale;
+                    float maxDy = (child().getHeight() - (child().getHeight() / scale)) / 2 * scale;
+                    dx = Math.min(Math.max(dx, -maxDx), maxDx);
+                    dy = Math.min(Math.max(dy, -maxDy), maxDy);
+                    applyScaleAndTranslation();
+                }
+
+                return true;
+            }
+        });
+    }
+
+    @Override
+    public boolean onScaleBegin(ScaleGestureDetector scaleDetector) {
+        return true;
+    }
+
+    @Override
+    public boolean onScale(ScaleGestureDetector scaleDetector) {
+        float scaleFactor = scaleDetector.getScaleFactor();
+        if (lastScaleFactor == 0 || (Math.signum(scaleFactor) == Math.signum(lastScaleFactor))) {
+            scale *= scaleFactor;
+            scale = Math.max(MIN_ZOOM, Math.min(scale, MAX_ZOOM));
+            lastScaleFactor = scaleFactor;
+        } else {
+            lastScaleFactor = 0;
+        }
+        return true;
+    }
+
+    @Override
+    public void onScaleEnd(ScaleGestureDetector scaleDetector) {
+    }
+
+    private void applyScaleAndTranslation() {
+        child().setScaleX(scale);
+        child().setScaleY(scale);
+        child().setTranslationX(dx);
+        child().setTranslationY(dy);
+    }
+
+    private View child() {
+        return getChildAt(0);
+    }
+
+}
+```
+
+#### Step2
+Then in Layout file, Wrap your LinearLayout which you want to zoom with ZoomLinearLayout. Note that you have only one direct child for ZoomLinearLayout.
+
+```bash
+
+<com.tauseef.ZoomLinearLayout
+    android:layout_width="match_parent"
+    android:id="@+id/zoom_linear_layout"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    </LinearLayout>
+
+</com.asif.test.ZoomLinearLayout>
+
+```
+
+### Step3
+Now in MainActivity, create ZoomLinearLayout object and set the onTouch() event for it.
+
+```bash
+final ZoomLinearLayout zoomLinearLayout = (ZoomLinearLayout) findViewById(R.id.zoom_linear_layout);
+zoomLinearLayout.setOnTouchListener(new View.OnTouchListener() {
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        zoomLinearLayout.init(MainActivity.this);
+        return false;
+    }
+});
+```
+
 ## Authors
 
 - [tauseefrehman2 - linkedin](https://www.linkedin.com/in/tauseefrehman2/)
@@ -27,4 +188,9 @@ Sample Images are attached below
 - Java, Android, Xml, Api's, Firebase
 - Flutter, Firebase, API's, Google maps
 
+
+
+## Documentation
+
+[Refference link](https://stackoverflow.com/questions/38367291/pinch-zoom-for-linearlayout-in-android)
 
